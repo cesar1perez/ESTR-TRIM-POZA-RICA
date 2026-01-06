@@ -3,132 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seguimiento de Estrategia Comercial - Llanterama</title>
+    <title>Control de Estrategia - Llanterama Poza Rica</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,500&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primario: #d32f2f;
-            --oscuro: #1a1a1a;
+            --azul-llanterama: #1a237e;
+            --amarillo-elegante: #f9a825; /* Un amarillo dorado legible */
+            --rojo-corporativo: #d32f2f;
         }
-        body { background-color: #f3f4f6; font-family: 'Inter', sans-serif; }
+        body { background-color: #f0f2f5; font-family: 'Montserrat', sans-serif; }
         .mensaje-corporativo {
             font-family: 'Playfair Display', serif;
-            font-size: 1.4rem;
-            line-height: 1.6;
-            border-left: 6px solid var(--primario);
+            font-size: 1.6rem;
+            color: #2c3e50;
         }
         .card-vendedor { 
-            border-radius: 20px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-top: 8px solid var(--azul-llanterama);
+            border-radius: 15px;
         }
-        .card-vendedor:hover { transform: scale(1.02); shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
-        .barra-progreso-bg { background: #e5e7eb; height: 12px; border-radius: 10px; }
-        .barra-progreso-fill { height: 100%; border-radius: 10px; transition: width 1s ease-in-out; }
+        .text-objetivo { font-size: 1.1rem; color: #475569; }
+        .text-real { font-size: 1.25rem; font-weight: 900; color: #1e293b; }
+        .barra-bg { background: #e2e8f0; height: 16px; border-radius: 8px; }
+        .barra-fill { height: 100%; border-radius: 8px; transition: width 1s ease; }
+        .bg-azul { background-color: var(--azul-llanterama); }
+        .bg-amarillo { background-color: var(--amarillo-elegante); }
+        .text-amarillo { color: #856404; } /* Para lectura sobre fondo claro */
     </style>
 </head>
 <body>
 
-    <header class="bg-white border-b-4 border-red-600 py-6 shadow-sm">
-        <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-center md:text-left">
-            <div>
-                <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase">Llanterama <span class="text-red-600">Poza Rica</span></h1>
-                <p class="text-slate-500 font-bold tracking-[0.2em] text-sm uppercase">Panel de Rendimiento Trimestral</p>
-            </div>
-            <div class="mt-4 md:mt-0 flex gap-4">
-                <div class="bg-slate-900 text-white px-6 py-2 rounded-lg text-center">
-                    <p class="text-[10px] uppercase opacity-60">Actualización</p>
-                    <p class="text-sm font-bold" id="last-update">En vivo</p>
-                </div>
-            </div>
+    <header class="bg-white shadow-md border-b-2 border-gray-200 py-6">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl font-black text-blue-900 uppercase tracking-tighter">Llanterama Poza Rica</h1>
+            <p class="text-gray-500 font-bold mt-2 uppercase tracking-widest">Dashboard de Rendimiento Comercial</p>
         </div>
     </header>
 
-    <section class="container mx-auto px-6 mt-8">
-        <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-6">
-            <div class="hidden md:flex h-16 w-16 bg-red-50 text-red-600 items-center justify-center rounded-full text-3xl">
-                <i class="fas fa-award"></i>
-            </div>
-            <p class="mensaje-corporativo italic text-slate-700">
-                "Estimado equipo comercial, les recordamos que para ser acreedores a la bonificación correspondiente, es estrictamente necesario alcanzar el <span class="text-red-600 font-bold underline">100% del objetivo</span> establecido en cada línea de producto."
+    <section class="container mx-auto px-6 mt-10">
+        <div class="bg-white p-10 rounded-xl shadow-lg border-l-[10px] border-blue-800">
+            <p class="mensaje-corporativo italic">
+                "Estimado equipo comercial, para validar el reclamo de sus bonificaciones, es <span class="text-blue-800 font-bold underline">obligatorio alcanzar el 100% del objetivo</span> en cada línea de producto individualmente."
             </p>
         </div>
     </section>
 
-    <main class="container mx-auto px-6 py-10">
-        <div id="dashboard-grid" class="grid grid-cols-1 xl:grid-cols-2 gap-10">
-            <div class="col-span-full text-center py-20 italic text-slate-400">
-                <i class="fas fa-circle-notch fa-spin text-3xl mb-4"></i>
-                <p>Cargando datos estratégicos...</p>
+    <main class="container mx-auto px-6 py-12">
+        <div id="dashboard" class="grid grid-cols-1 xl:grid-cols-2 gap-10">
             </div>
-        </div>
     </main>
 
     <script>
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6P9KM62Giaj8EcnVX4nCEytSekxWqxSdw-JkmBLOf70-XUS4SOyh0_bniRrb47KpTaLkiKf_rr4ug/pub?gid=389713094&single=true&output=csv';
 
-        async function init() {
+        function cargarDatos() {
+            // Usamos un fetch manual antes del parse para asegurar que leemos las columnas correctamente
             Papa.parse(CSV_URL, {
                 download: true,
                 header: true,
-                dynamicTyping: true,
                 complete: (results) => {
-                    renderCards(results.data);
+                    dibujarInterfaz(results.data);
                 }
             });
         }
 
-        function renderCards(data) {
-            const container = document.getElementById('dashboard-grid');
+        function dibujarInterfaz(data) {
+            const container = document.getElementById('dashboard');
             container.innerHTML = '';
 
-            data.forEach(row => {
-                if (!row.VENDEDOR) return;
+            data.forEach(v => {
+                if (!v.VENDEDOR) return;
 
-                // Captura de porcentajes (PapaParse usa sufijos para nombres idénticos)
-                const pctAcum = row['%'] || 0;
-                const pctMoto = row['%_1'] || 0;
-                const pctLub = row['%_2'] || 0;
+                // Mapeo manual de columnas para evitar errores de nombres duplicados
+                const campos = Object.values(v);
+                // Basado en tu estructura:
+                // 0:TRIMESTRE, 1:ZONA, 2:VENDEDOR, 3:OBJ ACUM, 4:REAL ACUM, 5:%, 6:GANANCIA ACUM
+                // 7:OBJ MOTO, 8:REAL MOTO, 9:%, 10:GANANCIA MOTO, 11:OBJ LUB, 12:REAL LUB, 13:%, 14:GANANCIA LUB...
 
                 const card = document.createElement('div');
-                card.className = 'bg-white shadow-xl card-vendedor p-8 border border-slate-100';
-                
+                card.className = 'bg-white shadow-2xl card-vendedor p-8';
+
                 card.innerHTML = `
-                    <div class="flex justify-between items-start mb-8">
+                    <div class="flex justify-between items-start mb-10">
                         <div>
-                            <span class="text-xs font-black bg-slate-100 text-slate-600 px-3 py-1 rounded-full uppercase tracking-tighter">${row.TRIMESTRE}</span>
-                            <h2 class="text-3xl font-black text-slate-800 mt-3 tracking-tight">${row.VENDEDOR}</h2>
-                            <p class="text-red-600 font-bold text-xs uppercase tracking-widest mt-1">${row.ZONA}</p>
+                            <span class="text-xl font-black text-blue-800 bg-blue-50 px-4 py-2 rounded-lg">
+                                ${v.TRIMESTRE === '1 Q' ? '1 Q - PRIMER TRIMESTRE' : v.TRIMESTRE}
+                            </span>
+                            <h2 class="text-3xl font-black text-slate-800 mt-6">${v.VENDEDOR}</h2>
+                            <p class="text-blue-600 font-bold uppercase tracking-widest">${v.ZONA}</p>
                         </div>
-                        <div class="text-right bg-red-600 text-white p-4 rounded-2xl shadow-lg shadow-red-200">
-                            <p class="text-[10px] uppercase font-bold opacity-80">Ganancia Total</p>
-                            <p class="text-3xl font-black leading-none mt-1">$${Number(row.TOTAL || 0).toLocaleString()}</p>
-                        </div>
-                    </div>
-
-                    <div class="space-y-8">
-                        ${renderMetric("Ventas Acumuladas", row['OBJ ACUM'], row['REAL ACUM'], pctAcum, row['GANANCIA ACUM'], "bg-slate-800")}
-                        
-                        ${renderMetric("Línea Moto", row['OBJ MOTO'], row['REAL MOTO'], pctMoto, row['GANANCIA MOTO'], "bg-red-600")}
-
-                        ${renderMetric("Línea Lubricantes", row['OBJ LUB'], row['REAL LUB'], pctLub, row['GANANCIA LUB'], "bg-amber-500")}
-                    </div>
-
-                    <div class="mt-10 pt-6 border-t border-slate-100 flex justify-between items-center">
-                        <div class="flex items-center gap-4">
-                            <div class="h-12 w-12 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500 text-xl">
-                                <i class="fas fa-users"></i>
+                        <div class="text-right">
+                            <div class="bg-green-600 text-white p-5 rounded-2xl shadow-lg">
+                                <p class="text-xs font-bold uppercase opacity-80 mb-1">Total Ganancia</p>
+                                <p class="text-4xl font-black">$${Number(v['TOTAL']).toLocaleString()}</p>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-12">
+                        ${crearBloque("VENTAS ACUMULADAS", v['OBJ ACUM'], v['REAL ACUM'], campos[5], v['GANANCIA ACUM'], "bg-azul")}
+                        
+                        ${crearBloque("LÍNEA MOTOS", v['OBJ MOTO'], v['REAL MOTO'], campos[9], v['GANANCIA MOTO'], "bg-azul")}
+
+                        ${crearBloque("LÍNEA LUBRICANTES", v['OBJ LUB'], v['REAL LUB'], campos[13], v['GANANCIA LUB'], "bg-amarillo")}
+                    </div>
+
+                    <div class="mt-12 pt-6 border-t-2 border-dashed border-gray-100 flex justify-between items-center">
+                        <div class="flex items-center gap-4">
+                            <i class="fas fa-user-plus text-3xl text-gray-400"></i>
                             <div>
-                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Clientes Nuevos</p>
-                                <p class="text-xl font-black text-slate-800">${row['ACUM CLIENTES NVO'] || 0}</p>
+                                <p class="text-xs font-bold text-gray-400 uppercase">Clientes Nuevos</p>
+                                <p class="text-2xl font-black text-slate-800">${v['ACUM CLIENTES NVO']}</p>
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Ganancia Clientes</p>
-                            <p class="text-xl font-black text-green-600 leading-none">$${Number(row['GANANCIA CLTS NVOS'] || 0).toLocaleString()}</p>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-tighter">Ganancia Clientes</p>
+                            <p class="text-2xl font-black text-green-600">$${Number(v['GANANCIA CLTS NVOS']).toLocaleString()}</p>
                         </div>
                     </div>
                 `;
@@ -136,35 +128,45 @@
             });
         }
 
-        function renderMetric(titulo, obj, real, pct, ganancia, colorBarra) {
-            const isComplete = pct >= 100;
+        function crearBloque(titulo, obj, real, pct, ganancia, colorClase) {
+            const porcentaje = parseFloat(pct) || 0;
+            const esMetaCumplida = porcentaje >= 100;
+            
             return `
-                <div>
-                    <div class="flex justify-between items-end mb-3">
-                        <div>
-                            <p class="text-sm font-black text-slate-800 uppercase tracking-tight">${titulo}</p>
-                            <p class="text-xs text-slate-500 font-medium italic">
-                                Meta: <span class="font-bold">${Number(obj || 0).toLocaleString()}</span> / 
-                                Real: <span class="font-bold text-slate-700">${Number(real || 0).toLocaleString()}</span>
-                            </p>
+                <div class="metric-container">
+                    <div class="flex justify-between items-end mb-4">
+                        <div class="flex-1">
+                            <p class="text-sm font-black text-blue-900 mb-2 tracking-wide uppercase italic border-l-4 border-red-600 pl-2">${titulo}</p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-xs font-bold text-gray-400 uppercase">OBJETIVO</p>
+                                    <p class="text-objetivo font-medium tracking-tight">${Number(obj).toLocaleString()}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-gray-400 uppercase">REAL VENDIDO</p>
+                                    <p class="text-real">${Number(real).toLocaleString()}</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <span class="text-2xl font-black ${isComplete ? 'text-green-600' : 'text-slate-400'}">${pct}%</span>
+                        <div class="text-right ml-4">
+                            <p class="text-4xl font-black ${esMetaCumplida ? 'text-green-600' : 'text-slate-700'}">${porcentaje}%</p>
                         </div>
                     </div>
-                    <div class="barra-progreso-bg">
-                        <div class="barra-progreso-fill ${isComplete ? 'bg-green-500' : colorBarra}" style="width: ${Math.min(pct, 100)}%"></div>
+                    
+                    <div class="barra-bg mb-3">
+                        <div class="barra-fill ${esMetaCumplida ? 'bg-green-500' : colorClase}" style="width: ${Math.min(porcentaje, 100)}%"></div>
                     </div>
-                    <div class="flex justify-between mt-2 px-1">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Ganancia Línea</p>
-                        <p class="text-sm font-black text-green-700">$${Number(ganancia || 0).toLocaleString()}</p>
+
+                    <div class="flex justify-between items-center bg-gray-50 px-4 py-2 rounded-lg border border-gray-100">
+                        <span class="text-[11px] font-black text-gray-500 uppercase tracking-widest">Ganancia de esta Línea:</span>
+                        <span class="text-xl font-black text-green-700 tracking-tight">$${Number(ganancia || 0).toLocaleString()}</span>
                     </div>
                 </div>
             `;
         }
 
-        window.onload = init;
-        setInterval(init, 300000); // Refresco cada 5 min
+        window.onload = cargarDatos;
+        setInterval(cargarDatos, 300000); // Actualización cada 5 min
     </script>
 </body>
 </html>
