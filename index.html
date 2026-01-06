@@ -3,51 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seguimiento Comercial Llanterama</title>
+    <title>Dashboard Llanterama Poza Rica</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --azul: #1e3a8a;
-            --amarillo: #facc15;
-            --amarillo-oscuro: #a16207;
-        }
-        body { background-color: #f1f5f9; font-family: 'Montserrat', sans-serif; }
-        .mensaje-pro {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.75rem;
-            line-height: 1.4;
-            color: #1e293b;
-        }
-        .card-vendedor { border-radius: 24px; border-bottom: 8px solid var(--azul); }
-        .barra-bg { background: #e2e8f0; height: 18px; border-radius: 10px; overflow: hidden; }
-        .barra-fill { height: 100%; transition: width 1s ease-in-out; }
-        .text-objetivo-grande { font-size: 1.2rem; font-weight: 700; color: #64748b; }
-        .text-real-grande { font-size: 1.5rem; font-weight: 900; color: #0f172a; }
+        :root { --azul: #1e3a8a; --amarillo: #facc15; }
+        body { background-color: #f8fafc; font-family: 'Montserrat', sans-serif; }
+        .mensaje-pro { font-family: 'Playfair Display', serif; font-size: 1.8rem; line-height: 1.4; color: #1e293b; }
+        .card-vendedor { border-radius: 20px; border-top: 10px solid var(--azul); transition: 0.3s; }
+        .barra-bg { background: #e2e8f0; height: 20px; border-radius: 10px; overflow: hidden; }
+        .barra-fill { height: 100%; transition: width 1.2s ease-out; }
     </style>
 </head>
 <body>
 
-    <header class="bg-white py-8 shadow-sm border-b-4 border-blue-900">
+    <header class="bg-white py-6 shadow-md border-b-4 border-blue-900 mb-8">
         <div class="container mx-auto px-6 flex justify-between items-center">
-            <h1 class="text-3xl font-black text-blue-900 italic">LLANTERAMA POZA RICA</h1>
-            <div class="bg-blue-900 text-white px-4 py-2 rounded-lg font-bold">ESTRATEGIA 2026</div>
+            <h1 class="text-3xl font-black text-blue-900 tracking-tighter">LLANTERAMA <span class="text-red-600">POZA RICA</span></h1>
+            <div id="status" class="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full uppercase italic">Conectado en vivo</div>
         </div>
     </header>
 
-    <section class="container mx-auto px-6 mt-10">
+    <section class="container mx-auto px-6 mb-10">
         <div class="bg-white p-10 rounded-3xl shadow-xl border-l-[12px] border-yellow-500">
             <p class="mensaje-pro italic text-center md:text-left">
-                "Estimado colaborador, le recordamos que para reclamar su ganancia, <span class="text-blue-700 font-bold underline">debe llegar al 100% de su objetivo</span> en la línea de producto correspondiente."
+                "Estimado colaborador, le recordamos que para reclamar su ganancia, <span class="text-blue-700 font-bold underline px-1">debe llegar al 100% de su objetivo</span> en la línea de producto correspondiente."
             </p>
         </div>
     </section>
 
-    <main class="container mx-auto px-6 py-12">
-        <div id="grid-vendedores" class="grid grid-cols-1 xl:grid-cols-2 gap-12">
+    <main class="container mx-auto px-6 pb-20">
+        <div id="grid-vendedores" class="grid grid-cols-1 xl:grid-cols-2 gap-10">
+            <div class="col-span-full text-center py-20">
+                <i class="fas fa-spinner fa-spin text-4xl text-blue-900"></i>
+                <p class="mt-4 font-bold text-gray-400">Sincronizando con Google Sheets...</p>
             </div>
+        </div>
     </main>
 
     <script>
@@ -56,66 +49,66 @@
         function init() {
             Papa.parse(CSV_URL, {
                 download: true,
-                header: false, // Usamos false para manejar las posiciones exactas
+                header: true,
+                skipEmptyLines: true,
                 complete: (results) => {
-                    const data = results.data;
-                    // Quitamos el encabezado de la tabla (fila 0)
-                    render(data.slice(1));
+                    render(results.data);
                 }
             });
         }
 
-        function render(filas) {
+        // Función para limpiar y convertir a número cualquier texto (ej: "$1,200.50" -> 1200.50)
+        function cleanNum(val) {
+            if (!val) return 0;
+            const num = parseFloat(String(val).replace(/[$,% ]/g, ''));
+            return isNaN(num) ? 0 : num;
+        }
+
+        function render(rows) {
             const container = document.getElementById('grid-vendedores');
             container.innerHTML = '';
 
-            filas.forEach(f => {
-                if (!f[2]) return; // Si no hay nombre de vendedor, saltar
+            rows.forEach(row => {
+                if (!row.VENDEDOR) return;
 
-                /* MAPEADO POR POSICIÓN (Basado en tu lista de columnas):
-                   0:Trimestre, 1:Zona, 2:Vendedor
-                   3:OBJ ACUM, 4:REAL ACUM, 5:%, 6:GANANCIA ACUM
-                   7:OBJ MOTO, 8:REAL MOTO, 9:%, 10:GANANCIA MOTO
-                   11:OBJ LUB, 12:REAL LUB, 13:%, 14:GANANCIA LUB
-                   15:ACUM CLIENTES NVO, 16:GANANCIA CLTS NVOS, 17:TOTAL
-                */
-
+                // Identificar columnas por nombres exactos según tu última actualización
+                const trimestre = row["TRIMESTRE"] === "1 Q" ? "1 Q - PRIMER TRIMESTRE" : row["TRIMESTRE"];
+                
                 const card = document.createElement('div');
-                card.className = 'bg-white shadow-2xl card-vendedor p-8 transition-all hover:shadow-blue-100';
-
-                // Formatear Trimestre
-                const trimestreTxt = f[0] === '1 Q' ? '1 Q - PRIMER TRIMESTRE' : f[0];
+                card.className = 'bg-white shadow-2xl card-vendedor p-8 border border-gray-100';
 
                 card.innerHTML = `
-                    <div class="flex justify-between items-start mb-8">
+                    <div class="flex justify-between items-start mb-10">
                         <div>
-                            <span class="bg-blue-100 text-blue-800 text-lg font-black px-4 py-1 rounded-md italic">${trimestreTxt}</span>
-                            <h2 class="text-3xl font-black text-slate-800 mt-4 tracking-tighter">${f[2]}</h2>
-                            <p class="text-blue-600 font-bold uppercase tracking-widest text-sm">${f[1]}</p>
+                            <span class="bg-blue-900 text-white text-sm font-bold px-4 py-1 rounded-full italic">${trimestre}</span>
+                            <h2 class="text-3xl font-black text-slate-800 mt-4">${row.VENDEDOR}</h2>
+                            <p class="text-blue-600 font-bold uppercase text-xs tracking-widest">${row.ZONA}</p>
                         </div>
-                        <div class="bg-green-600 text-white p-5 rounded-2xl text-right shadow-lg">
-                            <p class="text-[10px] font-bold uppercase opacity-80">Total a Ganar</p>
-                            <p class="text-4xl font-black">$${formatear(f[17])}</p>
+                        <div class="bg-green-600 text-white p-5 rounded-2xl shadow-lg text-right">
+                            <p class="text-[10px] font-bold uppercase opacity-80">Ganancia Total</p>
+                            <p class="text-4xl font-black leading-none mt-1">$${cleanNum(row["TOTAL"]).toLocaleString()}</p>
                         </div>
                     </div>
 
-                    <div class="space-y-10">
-                        ${crearFila("VENTAS ACUMULADAS", f[3], f[4], f[5], f[6], "bg-blue-800")}
-                        ${crearFila("OBJETIVO MOTO", f[7], f[8], f[9], f[10], "bg-blue-600")}
-                        ${crearFila("OBJETIVO LUBRICANTES", f[11], f[12], f[13], f[14], "bg-yellow-500")}
+                    <div class="space-y-12">
+                        ${crearBloque("Ventas Acumuladas", row["OBJ ACUM"], row["REAL ACUM"], row["%"], row["GANANCIA ACUM"], "bg-blue-800")}
+                        
+                        ${crearBloque("Línea Moto", row["OBJ MOTO"], row["REAL MOTO"], row["%_1"], row["GANANCIA MOTO"], "bg-blue-600")}
+
+                        ${crearBloque("Línea Lubricantes", row["OBJ LUB"], row["REAL LUB"], row["%_2"], row["GANANCIA LUB"], "bg-yellow-500")}
                     </div>
 
-                    <div class="mt-10 pt-6 border-t border-slate-100 flex justify-between items-center bg-slate-50 p-4 rounded-xl">
-                        <div class="flex items-center gap-3">
-                            <i class="fas fa-user-plus text-slate-400 text-2xl"></i>
+                    <div class="mt-12 pt-6 border-t border-gray-100 flex justify-between items-center bg-gray-50 p-5 rounded-2xl">
+                        <div class="flex items-center gap-4">
+                            <i class="fas fa-users text-gray-300 text-3xl"></i>
                             <div>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase">Clientes Nuevos</p>
-                                <p class="text-2xl font-black text-slate-800">${f[15] || 0}</p>
+                                <p class="text-[10px] font-bold text-gray-400 uppercase">Clientes Nuevos</p>
+                                <p class="text-3xl font-black text-slate-800">${row["ACUM CLIENTES NVO"] || 0}</p>
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Bono Clientes</p>
-                            <p class="text-2xl font-black text-green-600">$${formatear(f[16])}</p>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">Bono Clientes</p>
+                            <p class="text-3xl font-black text-green-600">$${cleanNum(row["GANANCIA CLTS NVOS"]).toLocaleString()}</p>
                         </div>
                     </div>
                 `;
@@ -123,53 +116,45 @@
             });
         }
 
-        function crearFila(label, obj, real, pct, ganancia, colorClase) {
-            const p = parseFloat(pct) || 0;
-            const metaLograda = p >= 100;
+        function crearBloque(titulo, obj, real, pct, ganancia, color) {
+            const porcentaje = cleanNum(pct);
+            const esMeta = porcentaje >= 100;
 
             return `
-                <div class="relative">
-                    <div class="flex justify-between items-end mb-3">
+                <div>
+                    <div class="flex justify-between items-end mb-4">
                         <div class="flex-1">
-                            <p class="text-xs font-black text-blue-900 uppercase tracking-widest mb-2">${label}</p>
-                            <div class="flex gap-8">
+                            <p class="text-sm font-black text-blue-900 uppercase italic mb-3 border-l-4 border-red-600 pl-3">${titulo}</p>
+                            <div class="flex gap-10">
                                 <div>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase">OBJETIVO</p>
-                                    <p class="text-objetivo-grande">${Number(obj || 0).toLocaleString()}</p>
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase">Objetivo</p>
+                                    <p class="text-xl font-bold text-gray-600 italic">${cleanNum(obj).toLocaleString()}</p>
                                 </div>
                                 <div>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">REAL VENDIDO</p>
-                                    <p class="text-real-grande">${Number(real || 0).toLocaleString()}</p>
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase">Real Vendido</p>
+                                    <p class="text-3xl font-black text-slate-900 leading-none tracking-tighter">${cleanNum(real).toLocaleString()}</p>
                                 </div>
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="text-4xl font-black ${metaLograda ? 'text-green-600' : 'text-slate-300'}">${p}%</p>
+                            <p class="text-5xl font-black ${esMeta ? 'text-green-600' : 'text-slate-300'}">${porcentaje}%</p>
                         </div>
                     </div>
                     
-                    <div class="barra-bg mb-2">
-                        <div class="barra-fill ${metaLograda ? 'bg-green-500' : colorClase}" style="width: ${Math.min(p, 100)}%"></div>
+                    <div class="barra-bg mb-3">
+                        <div class="barra-fill ${esMeta ? 'bg-green-500' : color}" style="width: ${Math.min(porcentaje, 100)}%"></div>
                     </div>
 
-                    <div class="flex justify-between items-center mt-1">
-                        <span class="text-[11px] font-bold text-slate-400 italic">Ganancia por esta línea:</span>
-                        <span class="text-xl font-black text-green-700">$${formatear(ganancia)}</span>
+                    <div class="flex justify-between items-center px-2">
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Ganancia acumulada:</p>
+                        <p class="text-2xl font-black text-green-700">$${cleanNum(ganancia).toLocaleString()}</p>
                     </div>
                 </div>
             `;
         }
 
-        function formatear(valor) {
-            if (!valor) return "0";
-            // Limpiar el valor por si trae signos de pesos o comas del excel
-            const limpio = String(valor).replace(/[$,]/g, '');
-            const num = parseFloat(limpio);
-            return isNaN(num) ? "0" : num.toLocaleString();
-        }
-
         window.onload = init;
-        setInterval(init, 300000); 
+        setInterval(init, 300000); // Refrescar cada 5 min
     </script>
 </body>
 </html>
