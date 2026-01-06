@@ -3,124 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Estrategia - Llanterama Poza Rica</title>
+    <title>Seguimiento Comercial Llanterama</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --azul-llanterama: #1a237e;
-            --amarillo-elegante: #f9a825; /* Un amarillo dorado legible */
-            --rojo-corporativo: #d32f2f;
+            --azul: #1e3a8a;
+            --amarillo: #facc15;
+            --amarillo-oscuro: #a16207;
         }
-        body { background-color: #f0f2f5; font-family: 'Montserrat', sans-serif; }
-        .mensaje-corporativo {
+        body { background-color: #f1f5f9; font-family: 'Montserrat', sans-serif; }
+        .mensaje-pro {
             font-family: 'Playfair Display', serif;
-            font-size: 1.6rem;
-            color: #2c3e50;
+            font-size: 1.75rem;
+            line-height: 1.4;
+            color: #1e293b;
         }
-        .card-vendedor { 
-            border-top: 8px solid var(--azul-llanterama);
-            border-radius: 15px;
-        }
-        .text-objetivo { font-size: 1.1rem; color: #475569; }
-        .text-real { font-size: 1.25rem; font-weight: 900; color: #1e293b; }
-        .barra-bg { background: #e2e8f0; height: 16px; border-radius: 8px; }
-        .barra-fill { height: 100%; border-radius: 8px; transition: width 1s ease; }
-        .bg-azul { background-color: var(--azul-llanterama); }
-        .bg-amarillo { background-color: var(--amarillo-elegante); }
-        .text-amarillo { color: #856404; } /* Para lectura sobre fondo claro */
+        .card-vendedor { border-radius: 24px; border-bottom: 8px solid var(--azul); }
+        .barra-bg { background: #e2e8f0; height: 18px; border-radius: 10px; overflow: hidden; }
+        .barra-fill { height: 100%; transition: width 1s ease-in-out; }
+        .text-objetivo-grande { font-size: 1.2rem; font-weight: 700; color: #64748b; }
+        .text-real-grande { font-size: 1.5rem; font-weight: 900; color: #0f172a; }
     </style>
 </head>
 <body>
 
-    <header class="bg-white shadow-md border-b-2 border-gray-200 py-6">
-        <div class="container mx-auto px-6 text-center">
-            <h1 class="text-4xl font-black text-blue-900 uppercase tracking-tighter">Llanterama Poza Rica</h1>
-            <p class="text-gray-500 font-bold mt-2 uppercase tracking-widest">Dashboard de Rendimiento Comercial</p>
+    <header class="bg-white py-8 shadow-sm border-b-4 border-blue-900">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <h1 class="text-3xl font-black text-blue-900 italic">LLANTERAMA POZA RICA</h1>
+            <div class="bg-blue-900 text-white px-4 py-2 rounded-lg font-bold">ESTRATEGIA 2026</div>
         </div>
     </header>
 
     <section class="container mx-auto px-6 mt-10">
-        <div class="bg-white p-10 rounded-xl shadow-lg border-l-[10px] border-blue-800">
-            <p class="mensaje-corporativo italic">
-                "Estimado equipo comercial, para validar el reclamo de sus bonificaciones, es <span class="text-blue-800 font-bold underline">obligatorio alcanzar el 100% del objetivo</span> en cada línea de producto individualmente."
+        <div class="bg-white p-10 rounded-3xl shadow-xl border-l-[12px] border-yellow-500">
+            <p class="mensaje-pro italic text-center md:text-left">
+                "Estimado colaborador, le recordamos que para reclamar su ganancia, <span class="text-blue-700 font-bold underline">debe llegar al 100% de su objetivo</span> en la línea de producto correspondiente."
             </p>
         </div>
     </section>
 
     <main class="container mx-auto px-6 py-12">
-        <div id="dashboard" class="grid grid-cols-1 xl:grid-cols-2 gap-10">
+        <div id="grid-vendedores" class="grid grid-cols-1 xl:grid-cols-2 gap-12">
             </div>
     </main>
 
     <script>
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6P9KM62Giaj8EcnVX4nCEytSekxWqxSdw-JkmBLOf70-XUS4SOyh0_bniRrb47KpTaLkiKf_rr4ug/pub?gid=389713094&single=true&output=csv';
 
-        function cargarDatos() {
-            // Usamos un fetch manual antes del parse para asegurar que leemos las columnas correctamente
+        function init() {
             Papa.parse(CSV_URL, {
                 download: true,
-                header: true,
+                header: false, // Usamos false para manejar las posiciones exactas
                 complete: (results) => {
-                    dibujarInterfaz(results.data);
+                    const data = results.data;
+                    // Quitamos el encabezado de la tabla (fila 0)
+                    render(data.slice(1));
                 }
             });
         }
 
-        function dibujarInterfaz(data) {
-            const container = document.getElementById('dashboard');
+        function render(filas) {
+            const container = document.getElementById('grid-vendedores');
             container.innerHTML = '';
 
-            data.forEach(v => {
-                if (!v.VENDEDOR) return;
+            filas.forEach(f => {
+                if (!f[2]) return; // Si no hay nombre de vendedor, saltar
 
-                // Mapeo manual de columnas para evitar errores de nombres duplicados
-                const campos = Object.values(v);
-                // Basado en tu estructura:
-                // 0:TRIMESTRE, 1:ZONA, 2:VENDEDOR, 3:OBJ ACUM, 4:REAL ACUM, 5:%, 6:GANANCIA ACUM
-                // 7:OBJ MOTO, 8:REAL MOTO, 9:%, 10:GANANCIA MOTO, 11:OBJ LUB, 12:REAL LUB, 13:%, 14:GANANCIA LUB...
+                /* MAPEADO POR POSICIÓN (Basado en tu lista de columnas):
+                   0:Trimestre, 1:Zona, 2:Vendedor
+                   3:OBJ ACUM, 4:REAL ACUM, 5:%, 6:GANANCIA ACUM
+                   7:OBJ MOTO, 8:REAL MOTO, 9:%, 10:GANANCIA MOTO
+                   11:OBJ LUB, 12:REAL LUB, 13:%, 14:GANANCIA LUB
+                   15:ACUM CLIENTES NVO, 16:GANANCIA CLTS NVOS, 17:TOTAL
+                */
 
                 const card = document.createElement('div');
-                card.className = 'bg-white shadow-2xl card-vendedor p-8';
+                card.className = 'bg-white shadow-2xl card-vendedor p-8 transition-all hover:shadow-blue-100';
+
+                // Formatear Trimestre
+                const trimestreTxt = f[0] === '1 Q' ? '1 Q - PRIMER TRIMESTRE' : f[0];
 
                 card.innerHTML = `
-                    <div class="flex justify-between items-start mb-10">
+                    <div class="flex justify-between items-start mb-8">
                         <div>
-                            <span class="text-xl font-black text-blue-800 bg-blue-50 px-4 py-2 rounded-lg">
-                                ${v.TRIMESTRE === '1 Q' ? '1 Q - PRIMER TRIMESTRE' : v.TRIMESTRE}
-                            </span>
-                            <h2 class="text-3xl font-black text-slate-800 mt-6">${v.VENDEDOR}</h2>
-                            <p class="text-blue-600 font-bold uppercase tracking-widest">${v.ZONA}</p>
+                            <span class="bg-blue-100 text-blue-800 text-lg font-black px-4 py-1 rounded-md italic">${trimestreTxt}</span>
+                            <h2 class="text-3xl font-black text-slate-800 mt-4 tracking-tighter">${f[2]}</h2>
+                            <p class="text-blue-600 font-bold uppercase tracking-widest text-sm">${f[1]}</p>
                         </div>
-                        <div class="text-right">
-                            <div class="bg-green-600 text-white p-5 rounded-2xl shadow-lg">
-                                <p class="text-xs font-bold uppercase opacity-80 mb-1">Total Ganancia</p>
-                                <p class="text-4xl font-black">$${Number(v['TOTAL']).toLocaleString()}</p>
-                            </div>
+                        <div class="bg-green-600 text-white p-5 rounded-2xl text-right shadow-lg">
+                            <p class="text-[10px] font-bold uppercase opacity-80">Total a Ganar</p>
+                            <p class="text-4xl font-black">$${formatear(f[17])}</p>
                         </div>
                     </div>
 
-                    <div class="space-y-12">
-                        ${crearBloque("VENTAS ACUMULADAS", v['OBJ ACUM'], v['REAL ACUM'], campos[5], v['GANANCIA ACUM'], "bg-azul")}
-                        
-                        ${crearBloque("LÍNEA MOTOS", v['OBJ MOTO'], v['REAL MOTO'], campos[9], v['GANANCIA MOTO'], "bg-azul")}
-
-                        ${crearBloque("LÍNEA LUBRICANTES", v['OBJ LUB'], v['REAL LUB'], campos[13], v['GANANCIA LUB'], "bg-amarillo")}
+                    <div class="space-y-10">
+                        ${crearFila("VENTAS ACUMULADAS", f[3], f[4], f[5], f[6], "bg-blue-800")}
+                        ${crearFila("OBJETIVO MOTO", f[7], f[8], f[9], f[10], "bg-blue-600")}
+                        ${crearFila("OBJETIVO LUBRICANTES", f[11], f[12], f[13], f[14], "bg-yellow-500")}
                     </div>
 
-                    <div class="mt-12 pt-6 border-t-2 border-dashed border-gray-100 flex justify-between items-center">
-                        <div class="flex items-center gap-4">
-                            <i class="fas fa-user-plus text-3xl text-gray-400"></i>
+                    <div class="mt-10 pt-6 border-t border-slate-100 flex justify-between items-center bg-slate-50 p-4 rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-user-plus text-slate-400 text-2xl"></i>
                             <div>
-                                <p class="text-xs font-bold text-gray-400 uppercase">Clientes Nuevos</p>
-                                <p class="text-2xl font-black text-slate-800">${v['ACUM CLIENTES NVO']}</p>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">Clientes Nuevos</p>
+                                <p class="text-2xl font-black text-slate-800">${f[15] || 0}</p>
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-tighter">Ganancia Clientes</p>
-                            <p class="text-2xl font-black text-green-600">$${Number(v['GANANCIA CLTS NVOS']).toLocaleString()}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Bono Clientes</p>
+                            <p class="text-2xl font-black text-green-600">$${formatear(f[16])}</p>
                         </div>
                     </div>
                 `;
@@ -128,45 +123,53 @@
             });
         }
 
-        function crearBloque(titulo, obj, real, pct, ganancia, colorClase) {
-            const porcentaje = parseFloat(pct) || 0;
-            const esMetaCumplida = porcentaje >= 100;
-            
+        function crearFila(label, obj, real, pct, ganancia, colorClase) {
+            const p = parseFloat(pct) || 0;
+            const metaLograda = p >= 100;
+
             return `
-                <div class="metric-container">
-                    <div class="flex justify-between items-end mb-4">
+                <div class="relative">
+                    <div class="flex justify-between items-end mb-3">
                         <div class="flex-1">
-                            <p class="text-sm font-black text-blue-900 mb-2 tracking-wide uppercase italic border-l-4 border-red-600 pl-2">${titulo}</p>
-                            <div class="grid grid-cols-2 gap-4">
+                            <p class="text-xs font-black text-blue-900 uppercase tracking-widest mb-2">${label}</p>
+                            <div class="flex gap-8">
                                 <div>
-                                    <p class="text-xs font-bold text-gray-400 uppercase">OBJETIVO</p>
-                                    <p class="text-objetivo font-medium tracking-tight">${Number(obj).toLocaleString()}</p>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase">OBJETIVO</p>
+                                    <p class="text-objetivo-grande">${Number(obj || 0).toLocaleString()}</p>
                                 </div>
                                 <div>
-                                    <p class="text-xs font-bold text-gray-400 uppercase">REAL VENDIDO</p>
-                                    <p class="text-real">${Number(real).toLocaleString()}</p>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">REAL VENDIDO</p>
+                                    <p class="text-real-grande">${Number(real || 0).toLocaleString()}</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="text-right ml-4">
-                            <p class="text-4xl font-black ${esMetaCumplida ? 'text-green-600' : 'text-slate-700'}">${porcentaje}%</p>
+                        <div class="text-right">
+                            <p class="text-4xl font-black ${metaLograda ? 'text-green-600' : 'text-slate-300'}">${p}%</p>
                         </div>
                     </div>
                     
-                    <div class="barra-bg mb-3">
-                        <div class="barra-fill ${esMetaCumplida ? 'bg-green-500' : colorClase}" style="width: ${Math.min(porcentaje, 100)}%"></div>
+                    <div class="barra-bg mb-2">
+                        <div class="barra-fill ${metaLograda ? 'bg-green-500' : colorClase}" style="width: ${Math.min(p, 100)}%"></div>
                     </div>
 
-                    <div class="flex justify-between items-center bg-gray-50 px-4 py-2 rounded-lg border border-gray-100">
-                        <span class="text-[11px] font-black text-gray-500 uppercase tracking-widest">Ganancia de esta Línea:</span>
-                        <span class="text-xl font-black text-green-700 tracking-tight">$${Number(ganancia || 0).toLocaleString()}</span>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-[11px] font-bold text-slate-400 italic">Ganancia por esta línea:</span>
+                        <span class="text-xl font-black text-green-700">$${formatear(ganancia)}</span>
                     </div>
                 </div>
             `;
         }
 
-        window.onload = cargarDatos;
-        setInterval(cargarDatos, 300000); // Actualización cada 5 min
+        function formatear(valor) {
+            if (!valor) return "0";
+            // Limpiar el valor por si trae signos de pesos o comas del excel
+            const limpio = String(valor).replace(/[$,]/g, '');
+            const num = parseFloat(limpio);
+            return isNaN(num) ? "0" : num.toLocaleString();
+        }
+
+        window.onload = init;
+        setInterval(init, 300000); 
     </script>
 </body>
 </html>
