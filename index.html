@@ -3,40 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estrategia Comercial - Llanterama</title>
+    <title>Sistema de Estrategia Comercial - Llanterama</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --azul-corporativo: #1e3a8a; --amarillo-pro: #facc15; --vibrante: #06b6d4; }
+        :root { 
+            --azul-obsidiana: #0f172a;
+            --azul-vibrante: #0ea5e9; 
+            --amarillo-oro: #f59e0b;
+        }
         body { background-color: #f1f5f9; font-family: 'Montserrat', sans-serif; }
-        .mensaje-serif { font-family: 'Playfair Display', serif; font-size: 1.6rem; }
-        .card-vendedor { border-radius: 16px; border-left: 8px solid var(--azul-corporativo); transition: 0.3s; }
-        .barra-bg { background: #e2e8f0; height: 12px; border-radius: 6px; overflow: hidden; }
+        .mensaje-serif { font-family: 'Playfair Display', serif; font-size: 1.7rem; }
+        .card-vendedor { border-radius: 24px; border-top: 12px solid var(--azul-obsidiana); transition: 0.3s; }
+        .barra-bg { background: #e2e8f0; height: 14px; border-radius: 7px; overflow: hidden; }
         .barra-fill { height: 100%; transition: width 1s ease-in-out; }
-        .text-meta { font-size: 1.1rem; font-weight: 700; color: #334155; }
+        
+        /* Estilo de los cuadros de porcentaje y ganancia */
+        .box-pct { background-color: var(--azul-vibrante); color: white; border-radius: 12px 12px 0 0; }
+        .box-ganancia { background-color: var(--azul-obsidiana); color: #fbbf24; border-radius: 0 0 12px 12px; }
     </style>
 </head>
 <body>
 
-    <header class="bg-white py-4 shadow-sm border-b-2 border-blue-900">
+    <header class="bg-white py-6 shadow-md border-b-4 border-blue-900">
         <div class="container mx-auto px-6 flex justify-between items-center">
-            <h1 class="text-xl font-extrabold text-blue-900 tracking-tighter">LLANTERAMA <span class="text-red-600">SISTEMA COMERCIAL</span></h1>
-            <div class="text-[10px] font-bold bg-blue-50 text-blue-800 px-3 py-1 rounded-full uppercase tracking-widest">Panel de Seguimiento</div>
+            <h1 class="text-2xl font-black text-blue-900 tracking-tighter italic">LLANTERAMA <span class="text-red-600 underline">CONTROL DE VENTAS</span></h1>
+            <div class="bg-blue-900 text-white px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest">Estrategia Trimestral</div>
         </div>
     </header>
 
-    <section class="container mx-auto px-6 mt-6">
-        <div class="bg-white p-8 rounded-2xl shadow-lg border-l-[10px] border-blue-700">
-            <p class="mensaje-serif italic text-slate-700">
-                "Para validar el reclamo de sus bonificaciones, es <span class="text-blue-700 font-bold underline">obligatorio alcanzar el 100% del objetivo</span> en cada línea de producto."
+    <section class="container mx-auto px-6 mt-8">
+        <div class="bg-white p-10 rounded-3xl shadow-xl border-l-[12px] border-blue-600">
+            <p class="mensaje-serif italic text-slate-800">
+                "Estimado equipo: Para activar el pago de sus bonos, es <span class="text-blue-600 font-bold underline">indispensable el cumplimiento del 100%</span> en los objetivos de cada línea."
             </p>
         </div>
     </section>
 
-    <main class="container mx-auto px-6 py-10">
-        <div id="grid-vendedores" class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+    <main class="container mx-auto px-6 py-12">
+        <div id="grid-vendedores" class="grid grid-cols-1 xl:grid-cols-2 gap-12">
             </div>
     </main>
 
@@ -45,9 +52,7 @@
 
         function init() {
             Papa.parse(CSV_URL, {
-                download: true,
-                header: true,
-                skipEmptyLines: true,
+                download: true, header: true, skipEmptyLines: true,
                 complete: (results) => render(results.data)
             });
         }
@@ -65,45 +70,48 @@
             rows.forEach(row => {
                 if (!row.VENDEDOR) return;
 
-                // Limpiar nombre quitando "Poza Rica"
+                // Limpieza de nombre: Quita "Poza Rica"
                 const nombreLimpio = row.VENDEDOR.replace(/Poza Rica/gi, '').trim();
-                const trimestre = row.TRIMESTRE === "1 Q" ? "1 Q - PRIMER TRIMESTRE" : row.TRIMESTRE;
+                const trimestreTxt = row.TRIMESTRE === "1 Q" ? "1 Q - PRIMER TRIMESTRE" : row.TRIMESTRE;
                 
                 const card = document.createElement('div');
-                card.className = 'bg-white shadow-xl card-vendedor p-6 relative';
+                card.className = 'bg-white shadow-2xl card-vendedor p-8';
 
                 card.innerHTML = `
-                    <div class="flex justify-between items-start mb-6 border-b border-gray-50 pb-4">
+                    <div class="flex justify-between items-start mb-10 border-b pb-6">
                         <div>
-                            <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase">${trimestre}</span>
-                            <h2 class="text-xl font-extrabold text-slate-800 mt-2 uppercase tracking-tight">${nombreLimpio}</h2>
-                            <p class="text-blue-500 font-bold text-[10px] uppercase tracking-widest">${row.ZONA}</p>
+                            <span class="text-xs font-black bg-blue-100 text-blue-800 px-4 py-1 rounded-full uppercase italic">${trimestreTxt}</span>
+                            <h2 class="text-3xl font-black text-slate-900 mt-4 tracking-tight">${nombreLimpio}</h2>
+                            <p class="text-blue-500 font-bold text-xs uppercase mt-1 tracking-widest">${row.ZONA.replace(/Poza Rica/gi, '')}</p>
                         </div>
-                        <div class="bg-green-600 text-white px-6 py-3 rounded-xl shadow-md text-right border-b-4 border-green-800">
-                            <p class="text-[9px] font-bold uppercase opacity-90 tracking-tighter">Ganancia Total Acumulada</p>
-                            <p class="text-2xl font-black">$${cleanNum(row["TOTAL"]).toLocaleString()}</p>
+                        <div class="bg-green-600 text-white px-8 py-4 rounded-3xl shadow-lg text-right border-b-8 border-green-800">
+                            <p class="text-[10px] font-bold uppercase opacity-80 tracking-widest">Ganancia Total</p>
+                            <p class="text-4xl font-black leading-none mt-1">$${cleanNum(row["TOTAL"]).toLocaleString()}</p>
                         </div>
                     </div>
 
-                    <div class="space-y-8">
-                        ${crearSeccion("Ventas Acumuladores", row["OBJ ACUM"], row["REAL ACUM"], row["%"], row["GANANCIA ACUM"], "bg-blue-800")}
-                        
-                        ${crearSeccion("Línea Moto", row["OBJ MOTO"], row["REAL MOTO"], row["%_1"], row["GANANCIA MOTO"], "bg-blue-600")}
-
-                        ${crearSeccion("Línea Lubricantes", row["OBJ LUB"], row["REAL LUB"], row["%_2"], row["GANANCIA LUB"], "bg-yellow-500")}
+                    <div class="space-y-12">
+                        ${crearFila("VENTAS ACUMULADORES", row["OBJ ACUM"], row["REAL ACUM"], row["%"], row["GANANCIA ACUM"], "bg-blue-800")}
+                        ${crearFila("LÍNEA MOTO", row["OBJ MOTO"], row["REAL MOTO"], row["%_1"], row["GANANCIA MOTO"], "bg-blue-600")}
+                        ${crearFila("LÍNEA LUBRICANTES", row["OBJ LUB"], row["REAL LUB"], row["%_2"], row["GANANCIA LUB"], "bg-yellow-500")}
                     </div>
 
-                    <div class="mt-8 pt-4 border-t-2 border-dashed border-gray-100 flex justify-between items-center">
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-users text-gray-400"></i>
+                    <div class="mt-12 pt-8 border-t-4 border-double border-gray-100 flex justify-between items-center">
+                        <div class="flex items-center gap-5">
+                            <div class="bg-slate-100 p-4 rounded-2xl">
+                                <i class="fas fa-user-plus text-3xl text-slate-400"></i>
+                            </div>
                             <div>
-                                <p class="text-[9px] font-bold text-gray-400 uppercase">Clientes Nuevos</p>
-                                <p class="text-lg font-black text-slate-700">${row["ACUM CLIENTES NVO"] || 0}</p>
+                                <p class="text-lg font-black text-slate-900 uppercase tracking-tighter">CLIENTES NUEVOS</p>
+                                <p class="text-3xl font-black text-blue-600">${row["ACUM CLIENTES NVO"] || 0}</p>
                             </div>
                         </div>
-                        <div class="bg-indigo-50 px-3 py-1 rounded-lg border border-indigo-100 text-right">
-                            <p class="text-[9px] font-bold text-indigo-400 uppercase">Bono Clientes</p>
-                            <p class="text-lg font-black text-indigo-700">$${cleanNum(row["GANANCIA CLTS NVOS"]).toLocaleString()}</p>
+                        
+                        <div class="w-32 shadow-xl">
+                            <div class="bg-blue-900 text-white text-center py-1 text-[10px] font-bold uppercase rounded-t-xl">Ganancia</div>
+                            <div class="bg-slate-900 text-green-400 text-center py-2 text-xl font-black rounded-b-xl border-t border-slate-700">
+                                $${cleanNum(row["GANANCIA CLTS NVOS"]).toLocaleString()}
+                            </div>
                         </div>
                     </div>
                 `;
@@ -111,36 +119,39 @@
             });
         }
 
-        function crearSeccion(titulo, obj, real, pct, ganancia, colorBarra) {
+        function crearFila(titulo, obj, real, pct, ganancia, colorBarra) {
             const p = cleanNum(pct);
             const esMeta = p >= 100;
 
             return `
-                <div class="relative">
-                    <div class="flex justify-between items-center mb-2">
-                        <p class="text-[11px] font-extrabold text-blue-900 uppercase tracking-widest border-l-4 border-red-600 pl-2">${titulo}</p>
-                        <span class="text-xl font-black ${esMeta ? 'text-green-600' : 'text-cyan-500'}">${p}%</span>
-                    </div>
-
-                    <div class="flex gap-6 mb-3">
-                        <div class="flex-1">
-                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Objetivo</p>
-                            <p class="text-meta">${cleanNum(obj).toLocaleString()}</p>
+                <div class="flex gap-6 items-start">
+                    <div class="flex-1">
+                        <p class="text-xl font-black text-slate-900 mb-4 tracking-tighter uppercase border-l-8 border-red-600 pl-3">${titulo}</p>
+                        
+                        <div class="flex gap-8 mb-4">
+                            <div>
+                                <p class="text-[10px] font-bold text-gray-400 uppercase">OBJETIVO</p>
+                                <p class="text-xl font-bold text-slate-600">${cleanNum(obj).toLocaleString()}</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">REAL VENDIDO</p>
+                                <p class="text-xl font-black text-slate-900">${cleanNum(real).toLocaleString()}</p>
+                            </div>
                         </div>
-                        <div class="flex-1">
-                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Real Vendido</p>
-                            <p class="text-meta">${cleanNum(real).toLocaleString()}</p>
+
+                        <div class="barra-bg">
+                            <div class="barra-fill ${esMeta ? 'bg-green-500' : colorBarra}" style="width: ${Math.min(p, 100)}%"></div>
                         </div>
                     </div>
 
-                    <div class="barra-bg mb-2">
-                        <div class="barra-fill ${esMeta ? 'bg-green-500' : colorBarra}" style="width: ${Math.min(p, 100)}%"></div>
-                    </div>
-
-                    <div class="flex justify-end">
-                        <div class="bg-slate-800 text-white px-3 py-1 rounded-md shadow-sm inline-flex items-center gap-2 border-b-2 border-black">
-                            <span class="text-[8px] font-bold uppercase opacity-70">Ganancia Línea:</span>
-                            <span class="text-xs font-black text-yellow-400">$${cleanNum(ganancia).toLocaleString()}</span>
+                    <div class="w-32 flex-shrink-0 shadow-2xl overflow-hidden rounded-2xl">
+                        <div class="box-pct text-center py-2">
+                            <p class="text-xs font-bold uppercase opacity-80 leading-none mb-1">Logro</p>
+                            <p class="text-3xl font-black leading-none">${p}%</p>
+                        </div>
+                        <div class="box-ganancia text-center py-2 border-t border-white/10">
+                            <p class="text-[10px] font-bold uppercase opacity-80 leading-none mb-1">Ganancia</p>
+                            <p class="text-xl font-black leading-none">$${cleanNum(ganancia).toLocaleString()}</p>
                         </div>
                     </div>
                 </div>
@@ -148,7 +159,7 @@
         }
 
         window.onload = init;
-        setInterval(init, 300000);
+        setInterval(init, 300000); // Refresco automático cada 5 min
     </script>
 </body>
 </html>
